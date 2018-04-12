@@ -107,7 +107,7 @@
             var authoCode ="ba3b81cf66e127f348d97ca05aeef50a3ed7a706ce75499304fa67507d106257"
 // Storing our giphy API URL for a random cat image
 //var queryURL = "https://auth.teamsnap.com/oauth/authorize?client_id=" + client_ID + "&redirect_uri=" + callbackUrl + "&response_type=RESPONSE_TYPE";
- var queryURL ="https://auth.teamsnap.com/oauth/token?client_id=" + CLIENT_ID + "&client_secret=" + CLIENT_SECRET +"&redirect_uri=" + callbackUrl + "&code=" +authoCode+"&grant_type=authorization_code";
+ var queryURL ="https://auth.teamsnap.com/oauth/token?client_id=" + CLIENT_ID + "&client_secret=" + CLIENT_SECRET +"&redirect_uri=" + callbackUrl + "&code=AUTHORIZATION_CODE&grant_type=authorization_code";
 // Perfoming an AJAX GET request to our queryURL
 $.ajax({
   url: queryURL,
