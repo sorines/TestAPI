@@ -1,143 +1,88 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>teamsnap</title>
-</head>
-<body>
-<div class="container">
+<html>
+  <head>
+    <title>Say hello using the People API</title>
+    <meta charset='utf-8' />
+  </head>
+  <body>
+    <p>Say hello using the People API.</p>
 
-        <br>
-    
-        <!-- Jumbotron -->
-        <div class="jumbotron">
-          <h1 class="text-center">Sign-Up Today!</h1>
-        </div>
-    
-        <div class="row">
-    
-          <!-- Sign-Up Panel-->
-          <div class="col-lg-6">
-            <div class="panel panel-default">
-              <div class="panel-heading">
-                <h3 class="panel-title">New Member Sign-Up</h3>
-              </div>
-              <div class="panel-body">
-    
-                <!-- Sign-up Form (note the various input "types")-->
-                <form role="form">
-                  <div class="form-group">
-                    <label for="name-input">Name:</label>
-                    <input class="form-control" id="name-input" type="text">
-                  </div>
-                  <div class="form-group">
-                    <label for="email-input">Email:</label>
-                    <input class="form-control" id="email-input" type="email">
-                  </div>
-                  <div class="form-group">
-                    <label for="age-input">Age:</label>
-                    <input class="form-control" id="age-input" type="number">
-                  </div>
-                  <div class="form-group">
-                    <label for="comment-input">How did you hear about us?</label>
-                    <textarea class="form-control" id="comment-input" rows="5"></textarea>
-                  </div>
-                  <button class="btn btn-default" id="add-user" type="submit">Submit</button>
-                </form>
-              </div>
-            </div>
-          </div>
-    
-          <!-- Most Recent Member Panel -->
-          <div class="col-lg-6">
-            <div class="panel panel-default">
-              <div class="panel-heading">
-                <h3 class="panel-title">Most Recent Member</h3>
-              </div>
-              <div class="panel-body" id="recent-member">
-                <h2 id="name-display">Jimmy John</h2>
-                <h4 id="email-display">Email: jimmy@john.edu</h4>
-                <h4 id="age-display">Age: 27</h4>
-                <p id="comment-display">I'm signing up, because I want to spread sandwiches to the world.</p>
-              </div>
-            </div>
-          </div>
-    
-        </div>
-    
-      </div>
-    
-      <!-- jQuery -->
-      <script src="https://code.jquery.com/jquery.js"></script>
-    
-      <!-- Script -->
-      <script>
-        // Capture Button Click
-        $("#add-user").on("click", function(event) {
-          // prevent form from trying to submit/refresh the page
-          event.preventDefault();
-    
-          // Capture User Inputs and store them into variables
-          var name = $("#name-input").val().trim();
-          var email = $("#email-input").val().trim();
-          var age = $("#age-input").val().trim();
-          var comment = $("#comment-input").val().trim();
-    
-          // Console log each of the user inputs to confirm we are receiving them
-          console.log(name);
-          console.log(email);
-          console.log(age);
-          console.log(comment);
-    
-          // Output all of the new information into the relevant HTML sections
-          $("#name-display").text(name);
-          $("#email-display").text(email);
-          $("#age-display").text(age);
-          $("#comment-display").text(comment);
-    
+    <!--Add buttons to initiate auth sequence and sign out-->
+    <button id="authorize-button" style="display: none;">Authorize</button>
+    <button id="signout-button" style="display: none;">Sign Out</button>
+
+    <div id="content"></div>
+
+    <script type="text/javascript">
+      // Enter an API key from the Google API Console:
+      //   https://console.developers.google.com/apis/credentials
+      var apiKey = "AIzaSyDm6hH_-PvmGp8TuOtxIiEdW0LeneviYeI";
+      // Enter the API Discovery Docs that describes the APIs you want to
+      // access. In this example, we are accessing the People API, so we load
+      // Discovery Doc found here: https://developers.google.com/people/api/rest/
+      var discoveryDocs = ["https://people.googleapis.com/$discovery/rest?version=v1"];
+      // Enter a client ID for a web application from the Google API Console:
+      //   https://console.developers.google.com/apis/credentials?project=_
+      // In your API Console project, add a JavaScript origin that corresponds
+      //   to the domain where you will be running the script.
+      var clientId = "305748773277-4cfenu3n2h059od6rlbcgbljovnq8gim.apps.googleusercontent.com";
+      // Enter one or more authorization scopes. Refer to the documentation for
+      // the API or https://developers.google.com/people/v1/how-tos/authorizing
+      // for details.
+      var scopes = 'profile';
+      var authorizeButton = document.getElementById('authorize-button');
+      var signoutButton = document.getElementById('signout-button');
+      function handleClientLoad() {
+        // Load the API client and auth2 library
+        gapi.load('client:auth2', initClient);
+      }
+      function initClient() {
+        gapi.client.init({
+            apiKey: apiKey,
+            discoveryDocs: discoveryDocs,
+            clientId: clientId,
+            scope: scopes
+        }).then(function () {
+          // Listen for sign-in state changes.
+          gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+          // Handle the initial sign-in state.
+          updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+          authorizeButton.onclick = handleAuthClick;
+          signoutButton.onclick = handleSignoutClick;
         });
-
-            $("#add-user").on("click", function() {
-
-            var CLIENT_ID= "5f09d9d7d8598276d6873cc15aaf042645c4c12969bfa4851cd565167cf52c52";
-            var callbackUrl ="https://sorines.github.io/TestAPI-So/";
-            var CLIENT_SECRET= "d9e6b747b41bfe70d5434ff474e396edf159aa79b52a6150b5c2a137941b5a34";
-            var authoCode ="ba3b81cf66e127f348d97ca05aeef50a3ed7a706ce75499304fa67507d106257"
-// Storing our giphy API URL for a random cat image
-//var queryURL = "https://auth.teamsnap.com/oauth/authorize?client_id=" + client_ID + "&redirect_uri=" + callbackUrl + "&response_type=RESPONSE_TYPE";
- var queryURL ="https://auth.teamsnap.com/oauth/token?client_id=" + CLIENT_ID + "&client_secret=" + CLIENT_SECRET +"&redirect_uri=" + callbackUrl + "&code=AUTHORIZATION_CODE&grant_type=authorization_code";
-// Perfoming an AJAX GET request to our queryURL
-$.ajax({
-  url: queryURL,
-  method: "GET"
-})
-
-// After the data from the AJAX request comes back
-  .then(function(response){
-    console.log(queryURL);
-  // Saving the image_original_url property
-    var meURL = response.me;
-    // Creating and storing an image tag
-    var meName = $("<div>");
-    meName.attr("#log-in");
-    // Setting the 
-        meName.attr("text", meURL);
- 
-
-    // Prepending the login to the login div
-    $("#log-in").prepend(meName);
-
-    console.log(queryURL);
-    console.log(meName);
-  });
-});
-
-
-
-        
-      </script>
-    
-    </body>
+      }
+      function updateSigninStatus(isSignedIn) {
+        if (isSignedIn) {
+          authorizeButton.style.display = 'none';
+          signoutButton.style.display = 'block';
+          makeApiCall();
+        } else {
+          authorizeButton.style.display = 'block';
+          signoutButton.style.display = 'none';
+        }
+      }
+      function handleAuthClick(event) {
+        gapi.auth2.getAuthInstance().signIn();
+      }
+      function handleSignoutClick(event) {
+        gapi.auth2.getAuthInstance().signOut();
+      }
+      // Load the API and make an API call.  Display the results on the screen.
+      function makeApiCall() {
+        gapi.client.people.people.get({
+          'resourceName': 'people/me',
+          'requestMask.includeField': 'person.names'
+        }).then(function(resp) {
+          var p = document.createElement('p');
+          var name = resp.result.names[0].givenName;
+          p.appendChild(document.createTextNode('Hello, '+name+'!'));
+          document.getElementById('content').appendChild(p);
+        });
+      }
+    </script>
+    <script async defer src="https://apis.google.com/js/api.js" 
+      onload="this.onload=function(){};handleClientLoad()" 
+      onreadystatechange="if (this.readyState === 'complete') this.onload()">
+    </script>
+  </body>
 </html>
